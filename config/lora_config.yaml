@@ -1,0 +1,26 @@
+# LoRA Configuration
+# QLoRA settings for 6GB VRAM constraint
+
+lora:
+  r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules: "all-linear"
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Fallback for OOM: attention-only LoRA (less VRAM)
+lora_fallback:
+  r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "v_proj"
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Gradient checkpointing (mandatory for 6GB VRAM)
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false

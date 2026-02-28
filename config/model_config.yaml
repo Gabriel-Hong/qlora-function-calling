@@ -1,0 +1,26 @@
+# Model Configuration
+# Qwen2.5-1.5B-Instruct for GEN NX API tool calling
+
+model:
+  name: "Qwen/Qwen2.5-1.5B-Instruct"
+  local_path: "models/base/Qwen2.5-1.5B-Instruct"
+  max_seq_length: 2048
+  dtype: "float16"
+
+# Special tokens (Qwen2.5 ChatML format)
+tokens:
+  eos_token: "<|im_end|>"
+  pad_token: "<|endoftext|>"
+  chat_template: "qwen"  # Use built-in Qwen chat template
+
+# 4-bit Quantization (BitsAndBytes)
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_use_double_quant: true
+
+# Windows + RTX 3060 6GB VRAM optimizations
+environment:
+  pytorch_cuda_alloc_conf: "expandable_segments:True"
+  tokenizers_parallelism: "false"

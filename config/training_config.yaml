@@ -1,0 +1,56 @@
+# Training Configuration
+# Optimized for RTX 3060 Laptop 6GB VRAM
+
+training:
+  # Batch settings
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+
+  # Learning rate
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+
+  # Epochs
+  num_train_epochs: 10
+  max_steps: -1  # Use num_train_epochs
+
+  # Precision
+  fp16: true
+  bf16: false  # RTX 3060 fp16 is more efficient
+
+  # Optimizer
+  optim: "paged_adamw_8bit"
+
+  # Saving & logging
+  save_strategy: "epoch"
+  save_total_limit: 3
+  eval_strategy: "epoch"
+  logging_steps: 5
+  logging_dir: "logs"
+  report_to: "tensorboard"
+
+  # Early stopping
+  early_stopping_patience: 3
+  early_stopping_threshold: 0.01
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  load_best_model_at_end: true
+
+  # Windows compatibility
+  dataloader_pin_memory: false
+  dataloader_num_workers: 0
+
+  # Memory optimization
+  gradient_checkpointing: true
+
+# SFT-specific settings
+sft:
+  packing: false  # Prevent conversation boundary pollution
+  max_seq_length: 2048
+  dataset_text_field: null  # Use messages format directly
+
+# Output
+output_dir: "models/checkpoints"
