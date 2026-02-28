@@ -1,0 +1,36 @@
+# PyTorch with CUDA 12.8
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch
+torchvision
+torchaudio
+
+# Hugging Face ecosystem
+transformers>=4.45.0
+peft>=0.13.0
+trl>=0.12.0
+datasets>=3.0.0
+accelerate>=1.0.0
+huggingface_hub>=0.25.0
+
+# Quantization
+bitsandbytes>=0.44.0
+
+# Unsloth (optional, faster training)
+# pip install unsloth  # Install separately if needed
+
+# Serving
+gradio>=4.0.0
+
+# Config
+pyyaml>=6.0
+
+# Evaluation & monitoring
+tensorboard>=2.18.0
+scikit-learn>=1.5.0
+matplotlib>=3.9.0
+seaborn>=0.13.0
+
+# Utilities
+tqdm>=4.66.0
+psutil>=6.0.0
+pynvml>=11.5.0

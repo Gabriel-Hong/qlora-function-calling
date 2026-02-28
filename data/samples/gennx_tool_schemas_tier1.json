@@ -1,0 +1,380 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/node",
+      "description": "Create or add nodes to the structural model. Each node is defined by its coordinates in 3D space.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Node assignments where each key is the node number (as string) and value is an object with X, Y, Z coordinates",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "X": { "type": "number", "description": "X coordinate (m)" },
+                "Y": { "type": "number", "description": "Y coordinate (m)" },
+                "Z": { "type": "number", "description": "Z coordinate (m)" }
+              },
+              "required": ["X", "Y", "Z"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "PUT /db/node",
+      "description": "Update existing nodes in the structural model. Modify coordinates of previously created nodes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Node assignments where each key is the existing node number and value is an object with updated X, Y, Z coordinates",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "X": { "type": "number", "description": "X coordinate (m)" },
+                "Y": { "type": "number", "description": "Y coordinate (m)" },
+                "Z": { "type": "number", "description": "Z coordinate (m)" }
+              },
+              "required": ["X", "Y", "Z"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "DELETE /db/node",
+      "description": "Delete nodes from the structural model by node number.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "array",
+            "description": "Array of node numbers to delete",
+            "items": { "type": "integer" }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/elem",
+      "description": "Create or add elements to the structural model. Elements connect nodes and define structural members.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Element assignments where each key is the element number and value defines the element",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "TYPE": { "type": "string", "description": "Element type (e.g., BEAM, TRUSS, PLATE, SOLID)", "enum": ["BEAM", "TRUSS", "PLATE", "SOLID", "TENSTR", "COMPTR"] },
+                "MATL": { "type": "integer", "description": "Material number reference" },
+                "SECT": { "type": "integer", "description": "Section number reference" },
+                "NODE": { "type": "array", "description": "Array of connected node numbers", "items": { "type": "integer" } },
+                "ANGLE": { "type": "number", "description": "Element rotation angle in degrees", "default": 0 }
+              },
+              "required": ["TYPE", "MATL", "SECT", "NODE"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "PUT /db/elem",
+      "description": "Update existing elements in the structural model. Modify element properties such as type, material, section, or connectivity.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Element assignments where each key is the existing element number and value contains updated properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "TYPE": { "type": "string", "description": "Element type", "enum": ["BEAM", "TRUSS", "PLATE", "SOLID", "TENSTR", "COMPTR"] },
+                "MATL": { "type": "integer", "description": "Material number reference" },
+                "SECT": { "type": "integer", "description": "Section number reference" },
+                "NODE": { "type": "array", "description": "Array of connected node numbers", "items": { "type": "integer" } },
+                "ANGLE": { "type": "number", "description": "Element rotation angle in degrees" }
+              }
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "DELETE /db/elem",
+      "description": "Delete elements from the structural model by element number.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "array",
+            "description": "Array of element numbers to delete",
+            "items": { "type": "integer" }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/matl",
+      "description": "Create or add materials to the structural model. Define material properties for structural analysis.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Material assignments where each key is the material number and value defines material properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "TYPE": { "type": "string", "description": "Material type", "enum": ["STEEL", "CONC", "SRC", "USER"] },
+                "NAME": { "type": "string", "description": "Material name (e.g., SS400, C24, S355)" },
+                "ELAST": { "type": "number", "description": "Elastic modulus (kN/m2)" },
+                "POISN": { "type": "number", "description": "Poisson's ratio" },
+                "THERMAL": { "type": "number", "description": "Thermal expansion coefficient (1/C)" },
+                "DEN": { "type": "number", "description": "Density (kN/m3)" },
+                "MASS": { "type": "number", "description": "Mass density (t/m3)" }
+              },
+              "required": ["TYPE", "NAME", "ELAST", "POISN", "DEN"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "PUT /db/matl",
+      "description": "Update existing materials in the structural model. Modify material properties.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Material assignments where each key is the existing material number and value contains updated properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "TYPE": { "type": "string", "description": "Material type", "enum": ["STEEL", "CONC", "SRC", "USER"] },
+                "NAME": { "type": "string", "description": "Material name" },
+                "ELAST": { "type": "number", "description": "Elastic modulus (kN/m2)" },
+                "POISN": { "type": "number", "description": "Poisson's ratio" },
+                "THERMAL": { "type": "number", "description": "Thermal expansion coefficient (1/C)" },
+                "DEN": { "type": "number", "description": "Density (kN/m3)" },
+                "MASS": { "type": "number", "description": "Mass density (t/m3)" }
+              }
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/sect",
+      "description": "Create or add sections to the structural model. Define cross-sectional properties for structural members.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Section assignments where each key is the section number and value defines section properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "SHAPE": { "type": "string", "description": "Cross-section shape", "enum": ["H", "B", "P", "T", "L", "C", "SB", "SR"] },
+                "NAME": { "type": "string", "description": "Section name (e.g., H-300x150x6.5x9)" },
+                "STYPE": { "type": "string", "description": "Section data type", "enum": ["DBUSER", "VALUE", "SRC"] },
+                "DATA": {
+                  "type": "object",
+                  "description": "Section dimension data depending on shape",
+                  "properties": {
+                    "H": { "type": "number", "description": "Height/Depth (m)" },
+                    "B": { "type": "number", "description": "Width (m)" },
+                    "tw": { "type": "number", "description": "Web thickness (m)" },
+                    "tf": { "type": "number", "description": "Flange thickness (m)" },
+                    "D": { "type": "number", "description": "Diameter for circular sections (m)" },
+                    "T": { "type": "number", "description": "Wall thickness for pipe sections (m)" }
+                  }
+                }
+              },
+              "required": ["SHAPE", "NAME"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "PUT /db/sect",
+      "description": "Update existing sections in the structural model. Modify section properties or dimensions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Section assignments where each key is the existing section number and value contains updated properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "SHAPE": { "type": "string", "description": "Cross-section shape", "enum": ["H", "B", "P", "T", "L", "C", "SB", "SR"] },
+                "NAME": { "type": "string", "description": "Section name" },
+                "STYPE": { "type": "string", "description": "Section data type", "enum": ["DBUSER", "VALUE", "SRC"] },
+                "DATA": {
+                  "type": "object",
+                  "description": "Section dimension data",
+                  "properties": {
+                    "H": { "type": "number", "description": "Height/Depth (m)" },
+                    "B": { "type": "number", "description": "Width (m)" },
+                    "tw": { "type": "number", "description": "Web thickness (m)" },
+                    "tf": { "type": "number", "description": "Flange thickness (m)" },
+                    "D": { "type": "number", "description": "Diameter for circular sections (m)" },
+                    "T": { "type": "number", "description": "Wall thickness for pipe sections (m)" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/stld",
+      "description": "Create static load cases in the structural model. Define load case names and types for organizing loads.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Load case assignments where each key is the load case name and value defines load case properties",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "DESC": { "type": "string", "description": "Load case description" },
+                "TYPE": { "type": "string", "description": "Load case type", "enum": ["D", "L", "W", "E", "LR", "S", "T", "USER"], "default": "USER" }
+              },
+              "required": ["DESC"]
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/bncf",
+      "description": "Create boundary conditions (supports/constraints) in the structural model. Define restraints at nodes for each degree of freedom.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Boundary condition assignments where each key is the node number and value defines DOF constraints",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "DX": { "type": "boolean", "description": "Restrain translation in X direction", "default": false },
+                "DY": { "type": "boolean", "description": "Restrain translation in Y direction", "default": false },
+                "DZ": { "type": "boolean", "description": "Restrain translation in Z direction", "default": false },
+                "RX": { "type": "boolean", "description": "Restrain rotation about X axis", "default": false },
+                "RY": { "type": "boolean", "description": "Restrain rotation about Y axis", "default": false },
+                "RZ": { "type": "boolean", "description": "Restrain rotation about Z axis", "default": false }
+              }
+            }
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "POST /db/self-weight",
+      "description": "Assign self-weight load to a static load case. Self-weight is calculated automatically from material density and section area.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "Assign": {
+            "type": "object",
+            "description": "Self-weight assignment",
+            "properties": {
+              "LCNAME": { "type": "string", "description": "Load case name to assign self-weight to" },
+              "X": { "type": "number", "description": "Self-weight factor in X direction", "default": 0 },
+              "Y": { "type": "number", "description": "Self-weight factor in Y direction", "default": 0 },
+              "Z": { "type": "number", "description": "Self-weight factor in Z direction (typically -1 for gravity)", "default": -1 }
+            },
+            "required": ["LCNAME", "Z"]
+          }
+        },
+        "required": ["Assign"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "GET /doc/anal",
+      "description": "Run structural analysis on the current model. Executes the solver to compute displacements, reactions, and internal forces.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "GET /view/capture",
+      "description": "Capture the current view of the structural model as an image. Returns a screenshot of the model viewport.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  }
+]
