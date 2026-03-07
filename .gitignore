@@ -28,6 +28,7 @@ models/final/
 data/raw/
 data/processed/
 data/eval/
+data/generated/
 logs/
 
 # Keep sample data tracked
