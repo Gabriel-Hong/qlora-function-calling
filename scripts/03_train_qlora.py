@@ -137,7 +137,7 @@ def setup_model_standard(model_config: dict, lora_config: dict):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_compute_dtype=torch.bfloat16,
         bnb_4bit_use_double_quant=True,
     )
 
@@ -176,7 +176,7 @@ def main() -> None:
 
     # ── 1. Load configs ────────────────────────────────────────────────
     print("=" * 60)
-    print("QLoRA Fine-Tuning — Qwen2.5-1.5B-Instruct")
+    print("QLoRA Fine-Tuning - Qwen2.5-1.5B-Instruct")
     print("=" * 60)
 
     model_config = load_yaml_config(str(config_dir / "model_config.yaml"))
@@ -231,10 +231,10 @@ def main() -> None:
     print_trainable_parameters(model)
 
     # ── 5. Setup trainer ───────────────────────────────────────────────
-    from trl import SFTTrainer
-    from transformers import TrainingArguments, EarlyStoppingCallback
+    from trl import SFTTrainer, SFTConfig
+    from transformers import EarlyStoppingCallback
 
-    training_args = TrainingArguments(
+    sft_config = SFTConfig(
         output_dir=str(output_dir),
         per_device_train_batch_size=train_cfg["per_device_train_batch_size"],
         per_device_eval_batch_size=train_cfg["per_device_eval_batch_size"],
@@ -260,16 +260,16 @@ def main() -> None:
         dataloader_num_workers=train_cfg["dataloader_num_workers"],
         gradient_checkpointing=True,
         gradient_checkpointing_kwargs={"use_reentrant": False},
+        max_length=model_config["model"]["max_seq_length"],
+        packing=False,
     )
 
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
-        args=training_args,
+        processing_class=tokenizer,
+        args=sft_config,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        max_seq_length=model_config["model"]["max_seq_length"],
-        packing=False,
         callbacks=[
             EarlyStoppingCallback(
                 early_stopping_patience=train_cfg["early_stopping_patience"],
