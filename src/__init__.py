@@ -9,16 +9,21 @@ from .data_utils import (
     get_tokenizer,
     compute_token_stats,
 )
-from .eval_metrics import (
-    tool_name_accuracy,
-    parameter_accuracy,
-    json_validity_rate,
-    hallucination_rate,
-    parse_tool_calls_from_output,
-    measure_latency,
-    measure_vram_usage,
-    compute_full_evaluation,
-)
+
+# Lazy import eval_metrics (requires torch)
+try:
+    from .eval_metrics import (
+        tool_name_accuracy,
+        parameter_accuracy,
+        json_validity_rate,
+        hallucination_rate,
+        parse_tool_calls_from_output,
+        measure_latency,
+        measure_vram_usage,
+        compute_full_evaluation,
+    )
+except ImportError:
+    pass
 
 __all__ = [
     "load_yaml_config",

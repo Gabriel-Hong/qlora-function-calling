@@ -18,8 +18,8 @@ training:
   max_steps: -1  # Use num_train_epochs
 
   # Precision
-  fp16: true
-  bf16: false  # RTX 3060 fp16 is more efficient
+  fp16: false
+  bf16: true  # RTX 3060 (Ampere) supports bf16, avoids fp16 AMP scaler issues
 
   # Optimizer
   optim: "paged_adamw_8bit"

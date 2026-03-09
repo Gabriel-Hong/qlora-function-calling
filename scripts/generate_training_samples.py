@@ -158,7 +158,7 @@ def call_openai(client: OpenAI, prompt: str, model: str, temperature: float,
             # GPT-5 계열: max_completion_tokens, temperature 고정(1)
             extra = {}
             if model.startswith("gpt-5") or model.startswith("o"):
-                extra["max_completion_tokens"] = 4096
+                extra["max_completion_tokens"] = 8192
             else:
                 extra["max_tokens"] = 4096
                 extra["temperature"] = temperature
@@ -254,17 +254,67 @@ def parse_llm_response(response_text: str) -> list[dict]:
 # Sample format fixing
 # ────────────────────────────────────────────────────────────────────
 
+def repair_json_string(s: str) -> str:
+    """Attempt to fix missing commas in a JSON string.
+
+    Common LLM mistake: omitting commas between key-value pairs.
+    e.g. '"value" "key"' → '"value", "key"'
+    """
+    # Already valid
+    try:
+        json.loads(s)
+        return s
+    except json.JSONDecodeError:
+        pass
+
+    # Pattern: missing comma before a new key
+    # Matches: value<whitespace>"key" where value ends with ", number, }, ], true, false, null
+    fixed = re.sub(
+        r'(")\s*\n?\s*(")',         # "value" "nextKey"
+        r'\1, \2', s
+    )
+    fixed = re.sub(
+        r'(\d)\s*\n?\s*(")',         # 123 "nextKey"
+        r'\1, \2', fixed
+    )
+    fixed = re.sub(
+        r'(\})\s*\n?\s*(")',         # } "nextKey"
+        r'\1, \2', fixed
+    )
+    fixed = re.sub(
+        r'(\])\s*\n?\s*(")',         # ] "nextKey"
+        r'\1, \2', fixed
+    )
+    fixed = re.sub(
+        r'(true|false|null)\s*\n?\s*(")',  # true/false/null "nextKey"
+        r'\1, \2', fixed
+    )
+    # Missing comma between array elements: }{
+    fixed = re.sub(
+        r'(\})\s*\n?\s*(\{)',
+        r'\1, \2', fixed
+    )
+
+    try:
+        json.loads(fixed)
+        return fixed
+    except json.JSONDecodeError:
+        return s  # Return original if still broken
+
+
 def fix_sample_format(sample: dict, tool_schema: dict) -> dict:
     """Fix common LLM formatting mistakes in generated samples."""
     sample = copy.deepcopy(sample)
 
-    # Fix tool_calls arguments: dict → JSON string
+    # Fix tool_calls arguments: dict → JSON string, and repair broken JSON
     for msg in sample.get("messages", []):
         if msg.get("role") == "assistant" and "tool_calls" in msg:
             for tc in msg["tool_calls"]:
                 func = tc.get("function", {})
                 if "arguments" in func and not isinstance(func["arguments"], str):
                     func["arguments"] = json.dumps(func["arguments"], ensure_ascii=False)
+                elif "arguments" in func and isinstance(func["arguments"], str):
+                    func["arguments"] = repair_json_string(func["arguments"])
                 if "type" not in tc:
                     tc["type"] = "function"
 
