@@ -41,5 +41,8 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Build artifacts
+*.deb
+
 # Secrets
 .env

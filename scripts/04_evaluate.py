@@ -118,12 +118,6 @@ def main():
         help="Path to test data JSONL file (default: data/processed/test.jsonl).",
     )
     parser.add_argument(
-        "--tools-schema",
-        type=str,
-        default="data/samples/gennx_tool_schemas_tier1.json",
-        help="Path to tools schema JSON file (default: data/samples/gennx_tool_schemas_tier1.json).",
-    )
-    parser.add_argument(
         "--output",
         type=str,
         default="data/eval/eval_results.json",
@@ -159,19 +153,21 @@ def main():
     print(f"[Step 3/6] Loaded {len(test_data)} test samples.")
 
     # ------------------------------------------------------------------ #
-    # Step 4: Load tools schema
+    # Step 4: Build available tools list from test data
     # ------------------------------------------------------------------ #
-    print(f"\n[Step 4/6] Loading tools schema from '{args.tools_schema}' ...")
-    with open(args.tools_schema, "r", encoding="utf-8") as f:
-        tools_schema = json.load(f)
-
-    available_tools = []
-    for tool in tools_schema:
-        if "function" in tool and "name" in tool["function"]:
-            available_tools.append(tool["function"]["name"])
-        elif "name" in tool:
-            available_tools.append(tool["name"])
-    print(f"[Step 4/6] Found {len(available_tools)} tool definitions.")
+    print(f"\n[Step 4/6] Building available tools list from test data ...")
+    available_tools_set = set()
+    for sample in test_data:
+        if "tools" in sample:
+            tools_value = sample["tools"]
+            tools_list = json.loads(tools_value) if isinstance(tools_value, str) else tools_value
+            for tool in tools_list:
+                if "function" in tool and "name" in tool["function"]:
+                    available_tools_set.add(tool["function"]["name"])
+                elif "name" in tool:
+                    available_tools_set.add(tool["name"])
+    available_tools = sorted(available_tools_set)
+    print(f"[Step 4/6] Found {len(available_tools)} unique tool definitions from test data.")
 
     # ------------------------------------------------------------------ #
     # Step 5: Run inference on test set
@@ -193,13 +189,11 @@ def main():
         ref_tool_calls = extract_reference_tool_calls(messages)
         references.append(ref_tool_calls)
 
-        # Parse tools from sample or use the loaded schema
+        # Parse tools from sample
         tools = None
         if "tools" in sample:
             tools_value = sample["tools"]
             tools = json.loads(tools_value) if isinstance(tools_value, str) else tools_value
-        else:
-            tools = tools_schema
 
         # Apply chat template to format the prompt
         prompt_text = tokenizer.apply_chat_template(
