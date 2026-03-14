@@ -32,6 +32,16 @@ def parse_tool_calls_from_output(text: str) -> list[dict]:
     for match in matches:
         try:
             parsed = json.loads(match.strip())
+            # Normalize to {"type": "function", "function": {"name": ..., "arguments": ...}}
+            # Model outputs {"name": ..., "arguments": ...} directly
+            if "function" not in parsed and "name" in parsed:
+                parsed = {
+                    "type": "function",
+                    "function": {
+                        "name": parsed["name"],
+                        "arguments": parsed.get("arguments", "{}"),
+                    },
+                }
             tool_calls.append(parsed)
         except (json.JSONDecodeError, ValueError):
             continue
